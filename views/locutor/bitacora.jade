@@ -1,0 +1,75 @@
+extends ./layout.jade
+block contenido
+	mixin requirement(requirement)
+		for req in requirement
+			tr
+				td= req.requirement
+				td
+					input(type="checkbox" value="#{req.id_binnacle}" name="res[]" checked="checked" class="res" data-off-text="&times;" data-on-text="OK")
+	-var date = new Date();
+	-var mes=new Array();
+		-mes[0]="Enero";
+		-mes[1]="Febrero";
+		-mes[2]="Marzo";
+		-mes[3]="Abril";
+		-mes[4]="Mayo";
+		-mes[5]="Junio";
+		-mes[6]="Julio";
+		-mes[7]="Agosto";
+		-mes[8]="Semptimbre";
+		-mes[9]="Octubre";
+		-mes[10]="Noviembre";
+		-mes[11]="Diciembre";
+	- final = date.getDate()+" "+mes[date.getMonth()]+" "+date.getFullYear()
+	div(class="container")
+		div(class="page-header")
+			h1 Sistema de reporte de bitacora
+			h1 Crearas un informe de bitacora con fecha #{final}
+			div(id="op")
+				div(class="collapse" id="collapse1")
+					div(class="well")
+						form(id="formControl")
+							div(class="row")
+								div(class="form-group")
+									label(for="start" class="control-label col-xs-3") Hora de inició:
+									div(class="col-xs-3")
+										p automaticó
+									label(for="final" class="control-label col-xs-3") Hora de salida:
+									div(class="col-xs-3")
+										input(type="time" name="final" id="final")
+						button(id="btn-add" class="btn btn-success col-md-offset-8" onclick="start();") Siguiente
+				div(class="collapse" id="collapse2")
+					div(class="well")
+						h1 Evalue los requisitos
+						form(name='requerimient' id="requerimient")
+							div(class="table-responsive")
+								table(class="table table-hover")
+									tr
+										th Requisito
+										th Estado
+									if requirement != null
+										+requirement(requirement)
+									else
+										p #{message}
+						button(id="btn_requerimient" name="btn_requerimient" class="btn btn-success col-md-offset-8") Siguiente
+				div(class="collapse" id="collapse3")
+					div(class="well")
+						h1 Se existe algún cartucho porfavor marquelo
+						div(class="container-fluid")
+							dic(class="row")
+								up(class="nav nav-tabs")
+									li
+										input(type="text" name="buscar" id="buscar" class="form-control" onkeyup="list_cartridge(this.value);" placeholder="Ingrese serie")
+						form(name="lapsed" id="lapsed")
+							div(id="cartridges")
+						div(class="row")
+							button(id="btn_report" class="btn btn-success col-md-offset-8") Reportar
+						div(class="table-responsive")
+							div(id="list")
+				div(class="collapse" id="collapse4")
+					div(class="well")
+						h1 Cualquier otra observacion escribala en este apartado
+						form(name="observation" id="observation")
+							textarea(name="note" class="form-control")
+						button(id="btn_finished" name="btn_finished" class="btn btn-success col-md-offset-8") Enviar
+	

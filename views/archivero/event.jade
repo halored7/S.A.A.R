@@ -1,0 +1,128 @@
+-var mes=new Array();
+-mes[0]="Enero";
+-mes[1]="Febrero";
+-mes[2]="Marzo";
+-mes[3]="Abril";
+-mes[4]="Mayo";
+-mes[5]="Junio";
+-mes[6]="Julio";
+-mes[7]="Agosto";
+-mes[8]="Semptimbre";
+-mes[9]="Octubre";
+-mes[10]="Noviembre";
+-mes[11]="Diciembre";
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+	body
+		div(class="container")
+			div(class="page-header")
+				h1(align="center")
+					p S.A.A.R
+				br
+				h2(align="center")
+					p Sistema de automatización de actividades de radiodifusoras
+			if contact == null
+				p evento no encontrado
+			else
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Información de ventas
+					div(class="panel-body")
+						-dateCreate = new Date(contact.date_create+" 00:00");
+						p Creado por #{contact.name_employe} fecha: #{dateCreate.getDate()+" de "+mes[dateCreate.getMonth()]+" de "+dateCreate.getFullYear()}
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Información contacto
+					div(class="panel-body")
+						h3
+							p(align="center") Nombre del evento: #{contact.name_event}
+						h3
+							p(align="center") Ordenado por: #{contact.ordered_by}
+						h3
+							p(align="center") Contactar con: #{contact.contact}
+						h3
+							p(align="center") Telefonó: #{contact.phone_contact}
+						h3
+							p(align="center") Dirección: #{contact.address_event}
+						h3
+							p(align="center") Lugar de instalación: #{contact.place_installation}
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Fechas reservadas
+					div(class="panel-body")
+						table(class="table")
+							tr
+								th Fecha
+								th De
+								th A
+							for d in dates
+								-dateR = new Date(d.date_event+" 00:00");
+								tr
+									td #{dateR.getDate()+" de "+mes[dateR.getMonth()]+" de "+dateR.getFullYear()}
+									td= d.time_start
+									td= d.time_final
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Información anexada
+					div(class="panel-body")
+						h3
+							p(align="center") Material de apoyo:
+							div(class="well well-lg") #{data.support}
+						-status = ""
+						-cor = ""
+						if data.commercial == 1
+							-status = "SI"
+							if data.form == 1
+								-cor = "En cabina"
+							else
+								-cor = "En vivo"
+						else
+							-status = "NO"
+						h3
+							p(align="center") Con cortes comerciales: #{status}, #{cor}
+						h3
+							p(align="center") Observaciones: 
+							div(class="well well-lg") #{data.observations}
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Recursos
+					div(class="panel-body")
+						if resources != null
+							for r in resources
+								h3
+									span(class="label label-default")= r.resoucer
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Locutores
+					div(class="panel-body")
+						if announcers != null
+							p= announcers.name_employe
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h4
+							p Anexo cliente
+					div(class="panel-body")
+						br
+						br
+						h3
+							p(align="center") Firma: ________________________________________________
+						br
+						br
+						br
+						h3
+							p Observaciones: __________________________________________________________
+							p               _______________________________________________________________________
+							p               _______________________________________________________________________
+							p               _______________________________________________________________________

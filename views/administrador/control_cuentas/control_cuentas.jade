@@ -1,0 +1,159 @@
+extends ../layout.jade
+block contenido
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#modalemploye")
+						span(class="icon-user-plus") &nbsp; Agregar nuevo usuario
+				li
+					a(href="/administrador/control_cuentas/")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+	div(class="container-fluid")
+		div(class="table-responsive")
+			table(class="table table-hover" id="user")
+				tr
+					th Nombre
+					th Departamento
+					th Nivel de permiso
+					th Fecha de creación
+					th Tipo de cuenta
+					th Acciones
+				mixin employe(employe)
+					- var color = ""
+					- var status = ""
+					- var employe_ed = ""
+					if employe.active === 1 && employe.date_eliminate === null
+						- color =  "success"
+						- status = "Estable"
+						- employe_ed = '<a href="#" onclick="employe_rd('+"'"+employe.id_employe+"'"+',0);"><span class="icon-user-minus"></span>Deshabilitar</a>'
+					else if employe.active === 0
+						- color = "danger"
+						- status = "Desabilitada"
+						- employe_ed = '<a href="#" onclick="employe_rd('+"'"+employe.id_employe+"'"+',1);"><span class="icon-user-check"></span>Habilitar</a>'
+					else
+						- color = "warning"
+						- status = "Expira: "+employe.date_eliminate
+					tr(class=color id=employe.id_employe)
+						td= employe.name_employe
+						td= employe.name_type
+						td= employe.level_employe
+						td= employe.date_creating
+						td= status
+						td!= employe_ed
+						td
+							a(href="#" data-toggle="modal" data-target="#modalupdate" onclick="view_employe('"+employe.id_employe+"','"+employe.name_employe+"','"+employe.name_type+"',"+employe.level_employe+",'"+employe.date_eliminate+"');")
+								span(class="icon-pencil2") Modificar
+						td
+							a(href="#" onclick="employeReset('"+employe.id_employe+"')" )
+								span(class="icon-key2") Resetear contraseña
+				if employes != null
+					for employe in employes
+						+employe(employe)
+				else
+					h4 No hay datos que mostrar
+		if message != null
+			h3
+				p ocurrio un problema: #{message}
+		mixin pager(c,pp,p)
+			-var less
+			-var more
+			case pp
+				when 1
+					- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+				default
+					- less = '<li><a href="/administrador/control_cuentas/?page='+(pp-1)+'">&laquo</a></li>'
+			if pp < c
+				- more = '<li><a href="/administrador/control_cuentas/?page='+(pp+1)+'">&raquo</a></li>'
+			else if pp >=c
+				- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+			| !{less}
+			each n in p
+				if n <= c
+					if n == pp
+						li(class="active")
+							a(href="#") #{n}
+					else
+						li
+							a(href="/administrador/control_cuentas/?page=#{n}") #{n}
+				else if n > c
+					li(class="disabled")
+						a(href="#") #{n}
+			| !{more}
+
+		nav
+			ul(class="pagination")
+				if num_pages != 0
+					+pager(num_pages,position,paint)
+	div(class="modal fade" id="modalemploye" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de cuenta
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_addemploye")
+						div(class="form-group")
+							label(for="Name" class="control-label col-xs-5") Nombre del empleado
+							div(class="col-xs-5")
+								input(id="Name" name="Name" type="text" class="form-control")
+						div(class="form-group")
+							label(for="Deparment" class="control-label col-xs-5") Departamento
+							div(class="col-xs-5")
+								select(name="Deparment" id="Deparment" class="form-control")
+									option(value="2") Personal ventas
+									option(value="3") Personal productor
+									option(value="4") Personal locutor
+						div(class="form-group")
+							label(for="Level" class="control-label col-xs-5") Nivel de acceso:
+							div(class="col-xs-5")
+								select(name="Level" id="Level" class="form-control")
+									option(value="1") 1
+									option(value="2") 2
+									option(value="3") 3
+						div(class="form-group")
+							label(for="Expire" class="control-label col-xs-5") Fecha de vencimiento:
+							div(class="col-xs-5")
+								input(id="Expire" name="Expire" type="date" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="btn-add" class="btn btn-primary" onclick="add_employe();") Registrar
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="modalupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de cuenta
+				div(class="modal-body")
+					div(id="messageupdate")
+					form(class="form-horizontal" id="form_update")
+						div(class="form-group")
+							label(for="Name" class="control-label col-xs-5") Nombre de empleado
+							div(class="col-xs-5")
+								input(id="Name_update" name="Name_update" type="text" class="form-control")
+						div(class="form-group")
+							label(for="deparment" class="control-label col-xs-5") Departamento
+							div(class="col-xs-5")
+								select(name="deparment_update" id="deparment_update" class="form-control")
+									option(value="2") Personal ventas
+									option(value="3") Personal productor
+									option(value="4") Personal locutor
+						div(class="form-group")
+							label(for="Nivel" class="control-label col-xs-5") Nivel de acceso:
+							div(class="col-xs-5")
+								select(name="level_update" id="level_update" class="form-control")
+									option(value="1") 1
+									option(value="2") 2
+									option(value="3") 3
+						div(class="form-group")
+							label(for="Expire" class="control-label col-xs-5") Fecha de vencimiento:
+							div(class="col-xs-5")
+								input(id="Expire_update" name="Expire_update" type="date" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="btn-update" class="btn btn-primary") Actualizar
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

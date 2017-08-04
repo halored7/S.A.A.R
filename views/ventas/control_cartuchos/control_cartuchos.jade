@@ -1,0 +1,228 @@
+extends ../layout.jade
+block contenido
+	mixin tables_date(date,date_format,cartridges)
+		h1(align="center" style="color:#F44336")= date_format
+		div(class="table-responsive")
+			table(class="table table-hover" id="#{date}")
+				tr
+					th No.
+					th Concepto
+					th Cartucho
+					th Estado
+					th Responsable
+					th Productor
+					th Acciones
+				for cartridge in cartridges
+					-var status = "";
+					-var color = ""
+					if cartridge.in_use == 0
+						-color = "success"
+						-status = "Disponible"
+					else if cartridge.in_use == 1
+						-color = "danger"
+						-status = "En uso"
+					tr(class="#{color}")
+						td= cartridge.number_day
+						td= cartridge.type_c+"_"+cartridge.name_c+"_"+cartridge.validity
+						td= cartridge.serie
+						td= status
+						td= cartridge.creator
+						td= cartridge.producer
+						td
+							a(href="#" data-toggle="modal" data-target="#modalupcartridge" onclick="update_cartridge('#{cartridge.id_control}','#{cartridge.type_c}','#{cartridge.name_c}','#{cartridge.validity}','#{cartridge.serie}','#{cartridge.producer}');")
+								span(class='icon-pencil') Modificar
+						td
+							a(href="#" data-toggle="modal" data-target="#modalnewv" onclick="new_version('#{cartridge.number_day}','#{cartridge.date_day}');")
+								span(class='icon-reply') Nueva version
+						if cartridge.in_use == 0
+							td
+								a(href="#" onclick="delete_cartridge('#{cartridge.id_control}');")
+									span(class='icon-pushpin') Eliminar
+	mixin avaliable_date(date)
+		- var years = date.year
+		- var months
+		case date.month
+			when 1
+				- months = "Enero"
+			when 2
+				- months = "Febrero"
+			when 3
+				- months = "Marzo"
+			when 4
+				- months = "Abril"
+			when 5
+				- months = "Mayo"
+			when 6
+				- months = "Junio"
+			when 7
+				- months = "Julio"
+			when 8
+				- months = "Agosto"
+			when 9
+				- months = "Septiembre"
+			when 10
+				- months = "Octubre"
+			when 11
+				- months = "Noviembre"
+			when 12
+				- months = "Diciembre"
+		li
+			a(href="/ventas/control_cartuchos/fecha?año="+years+"&mes="+months) #{months} de #{years}
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#modalcartridge")
+						span(class="icon-plus") &nbsp; Agregar nuevo cartucho
+				li
+					a(href="/ventas/control_cartuchos/fecha")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+				li(role="presentation" class="dropdown")
+					a(class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false")
+						| Fechas
+						span(class="caret")
+					ul(class="dropdown-menu")
+						if dates != null
+							for date in dates
+								+avaliable_date(date)
+
+	div(class="container-fluid")
+		if tables != null
+			for table in tables
+				+tables_date(table[0],table[1],table[2])
+		if message != null
+			h3
+				p Ocurrio un problema #{message}
+
+	div(class="modal fade" id="modalcartridge" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de cartuchos
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_addcartridge")
+						div(class="form-group")
+							label(for="type" class="control-label col-xs-5") Tipo:
+							div(class="col-xs-5")
+								select(name="type" id="type" class="form-control")
+									option(value="L") L-local
+									option(value="GE") GE-Gobierno
+									option(value="V") V-Vips
+									option(value="P") P-Promo
+						div(class="form-group")
+							label(for="concept" class="control-label col-xs-5") Concepto:
+							div(class="col-xs-5")
+								input(id="concept" name="concept" type="text" class="form-control")
+						div(class="form-group")
+							label(for="datev" class="control-label col-xs-5") Fecha de validación:
+							div(class="col-xs-5")
+								input(id="datev" name="datev" type="date" class="form-control")
+						div(class="form-group")
+							label(for="serie" class="control-label col-xs-5") Cartucho(serie):
+							div(class="col-xs-5")
+								input(id="serie" name="serie" type="text" class="form-control")
+						div(class="form-group")
+							label(for="producer" class="control-label col-xs-5") productor:
+							div(class="col-xs-5")
+								select(name="producer" id="producer" class="form-control")
+									if producers != null
+										for producer in producers
+											option(value="#{producer.id_employe}") #{producer.name_employe}
+				div(class="modal-footer")
+					if producers != null
+						button(type="button" id="btn-addbcartridge" onclick="add_cartridge();" class="btn btn-primary") Agregar
+					else
+						div(class="alert alert-danger alert-dismissible" role="alert") Advertencia: No existe ningun productor en el sistema, control cartuchos esta desabilitado
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="modalupcartridge" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de cartuchos
+				div(class="modal-body")
+					div(id="messageup")
+					form(class="form-horizontal" id="form_upcartridge")
+						div(class="form-group")
+							label(for="type_up" class="control-label col-xs-5") Tipo:
+							div(class="col-xs-5")
+								select(name="type_up" id="type_up" class="form-control")
+									option(value="L") L-local
+									option(value="GE") GE-Gobierno
+									option(value="V") V-Vips
+									option(value="P") P-Promo
+						div(class="form-group")
+							label(for="concept_up" class="control-label col-xs-5") Concepto:
+							div(class="col-xs-5")
+								input(id="concept_up" name="concept_up" type="text" class="form-control")
+						div(class="form-group")
+							label(for="datev_up" class="control-label col-xs-5") Fecha de validación:
+							div(class="col-xs-5")
+								input(id="datev_up" name="datev_up" type="date" class="form-control")
+						div(class="form-group")
+							label(for="serie_up" class="control-label col-xs-5") Cartucho(serie):
+							div(class="col-xs-5")
+								input(id="serie_up" name="serie_up" type="text" class="form-control")
+						div(class="form-group")
+							label(for="producer_up" class="control-label col-xs-5") productor:
+							div(class="col-xs-5")
+								select(name="producer_up" id="producer_up" class="form-control")
+									if producers != null
+										for producer in producers
+											option(value="#{producer.id_employe}") #{producer.name_employe}
+				div(class="modal-footer")
+					if producers != null
+						button(type="button" id="btn-upcartridge" class="btn btn-primary") Actualizar
+					else
+						div(class="alert alert-danger alert-dismissible" role="alert") Advertencia: No existe ningun productor en el sistema, control cartuchos esta desabilitado
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="modalnewv" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de cartuchos
+				div(class="modal-body")
+					div(id="messagenewv")
+					form(class="form-horizontal" id="form_cartridgenewv")
+						div(class="form-group")
+							label(for="type_nv" class="control-label col-xs-5") Tipo:
+							div(class="col-xs-5")
+								select(name="type_nv" id="type_nv" class="form-control")
+									option(value="L") L-local
+									option(value="GE") GE-Gobierno
+									option(value="V") V-Vips
+									option(value="P") P-Promo
+						div(class="form-group")
+							label(for="concept_nv" class="control-label col-xs-5") Concepto:
+							div(class="col-xs-5")
+								input(id="concept_nv" name="concept_nv" type="text" class="form-control")
+						div(class="form-group")
+							label(for="datev_nv" class="control-label col-xs-5") Fecha de validación:
+							div(class="col-xs-5")
+								input(id="datev_nv" name="datev_nv" type="date" class="form-control")
+						div(class="form-group")
+							label(for="serie_nv" class="control-label col-xs-5") Cartucho(serie):
+							div(class="col-xs-5")
+								input(id="serie_nv" name="serie_nv" type="text" class="form-control")
+						div(class="form-group")
+							label(for="producer_nv" class="control-label col-xs-5") productor:
+							div(class="col-xs-5")
+								select(name="producer_nv" id="producer_nv" class="form-control")
+									if producers != null
+										for producer in producers
+											option(value="#{producer.id_employe}") #{producer.name_employe}
+				div(class="modal-footer")
+					if producers != null
+						button(type="button" id="btn-cartridgenewv" class="btn btn-primary") Crear version
+					else
+						div(class="alert alert-danger alert-dismissible" role="alert") Advertencia: No existe ningun productor en el sistema, control cartuchos esta desabilitado
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

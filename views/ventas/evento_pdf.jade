@@ -1,0 +1,33 @@
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/bootstrap-switch.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+		script(src="http://localhost:8000/public/js/bootstrap-switch.js")
+	body
+		div(class="container")
+			div(class="panel panel-default")
+				div(class="panel-heading")
+					h2 Reporte de control remoto
+				div(class="panel-body")
+					p Este evento fué creado por #{contact.name_employe}
+				ul(class="list-group")
+					li(class="list-group-item") Evento: #{contact.name_event}
+					li(class="list-group-item") Ordenado por: #{contact.ordered_by}
+					li(class="list-group-item") Contactar con: #{contact.contact}
+					li(class="list-group-item") Telefonó: #{contact.phone_contact}
+					li(class="list-group-item") Dirección del evento: #{contact.address_event}
+					li(class="list-group-item") Lugar de instalación: #{contact.place_installation}
+				div(class="panel-body")
+					div(class="page-header")
+						h3 Fechas
+				ul(class="list-group")
+					li(class="list-group-item") Material de apoyo:
+					li(class="list-group-item") Cortes comerciales:
+					li(class="list-group-item") Recursos
+					li(class="list-group-item") Locutor(es)
+					li(class="list-group-item") Observaciones:

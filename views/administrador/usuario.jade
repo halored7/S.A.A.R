@@ -1,0 +1,32 @@
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+	body
+		if employe == null
+			p usuario no encontrado
+		else
+			div(class="container")
+				div(class="page-header")
+					h1(align="center")
+						p S.A.A.R
+					br
+					h2(align="center")
+						p Sistema de automatización de actividades de radiodifusoras
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3 Datos de cuenta para inició de sesion
+					div(class="panel-body")
+						h3(align="center")
+							p Nombre de usuario: #{employe.name_employe}
+							br
+							p Tu contraseña generica: #{employe.password_employe}
+							br
+							if employe.date_eliminate == null
+
+							else
+								p Tu cuenta estara activa hasta: #{employe.date_eliminate}

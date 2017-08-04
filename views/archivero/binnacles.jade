@@ -1,0 +1,81 @@
+-var mes=new Array();
+-mes[0]="Enero";
+-mes[1]="Febrero";
+-mes[2]="Marzo";
+-mes[3]="Abril";
+-mes[4]="Mayo";
+-mes[5]="Junio";
+-mes[6]="Julio";
+-mes[7]="Agosto";
+-mes[8]="Semptimbre";
+-mes[9]="Octubre";
+-mes[10]="Noviembre";
+-mes[11]="Diciembre";
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+	body
+		div(class="container")
+			div(class="page-header")
+				h1(align="center")
+					p S.A.A.R
+				br
+				h2(align="center")
+					p Sistema de automatización de actividades de radiodifusoras
+			if control == null
+				p Bitacora no encontrada
+			else
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3
+							p Información de locutor
+					div(class="panel-body")
+						div(class="row")
+							div(class="col-md-3")
+								h4
+									p bitacora de #{control.name_employe}
+							div(class="col-md-3")
+								- date = new Date(control.date+" 00:00");
+								h4
+									p fecha #{date.getDate()+" de "+mes[date.getMonth()]+" de "+date.getFullYear()}
+							div(class="col-md-3")
+								h4
+									p hora de entrada(automatico) #{control.start_time}
+							div(class="col-md-3")
+								h4
+									p hora de cierre #{control.final_time}
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3
+							p Material
+					div(class="panel-body")
+						h4
+							p Los siguientes materiales listados representan los materiales seleccionados en este reporte de bitacora, si no aparece algun material no fue seleccionado en la lista previa
+						ul(class="list-group")
+							if material != null
+								for r in material
+									li(class="list-group-item")= r.requirement
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3
+							p Cartuchos caducados
+					div(class="panel-body")
+						h4
+							p Los siguiente lista muestra los cartuchos marcados como caducados
+						ul(class="list-group")
+							if lapsed != null
+								for l in lapsed
+									li(class="list-group-item")= l.number_day+" "+l.type_c+"_"+l.name_c+"_"+l.validity+" "+l.serie
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3
+							p Comentario
+					div(class="panel-body")
+						if comment != null
+						h4 
+							p #{comment.comment}

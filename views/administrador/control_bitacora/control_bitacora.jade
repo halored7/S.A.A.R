@@ -1,0 +1,109 @@
+extends ../layout.jade
+block contenido
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#modalbinnacle")
+						span(class="icon-plus") &nbsp; Agregar nuevo requisito
+				li
+					a(href="/administrador/control_bitacora/page/")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+	div(class="container")
+		table(class="table table-hover")
+			tr
+				th Requisito
+				th Estado
+				th Acciones
+			mixin binnacle(binnacle)
+				- var color = ""
+				- var status = ""
+				- var binnacle_ed = ""
+				if binnacle.active === 1
+					- color = "success"
+					- status = "Habilitada"
+					- binnacle_ed = '<a href="#" onclick="binnacle_rd('+"'"+binnacle.id_binnacle+"'"+',0);"><span class="icon-minus"> &nbsp; Desabilitar</span></a>'
+				else if binnacle.active === 0
+					- color = "danger"
+					- status = "Desabilitada"
+					- binnacle_ed = '<a href="#" onclick="binnacle_rd('+"'"+binnacle.id_binnacle+"'"+',1);"><span class="icon-plus"> &nbsp; Habilitar</span></a>'
+				div
+					tr(class=color)
+						td= binnacle.requirement
+						td= status
+						td!= binnacle_ed
+						td
+							a(href="#" data-toggle="modal" data-target="#modalbinnacleupdate" onclick="binnacle_update("+"'"+binnacle.id_binnacle+"'"+",'"+binnacle.requirement+"');")
+								span(class="icon-pencil2") &nbsp; Modificar
+			if binnacles != null
+				for binnacle in binnacles
+					+binnacle(binnacle)
+		if message != null
+			h3
+				p Ocurrio un error: #{message}
+	mixin pager(c,pp,p)
+		-var less
+		-var more
+		case pp
+			when 1
+				- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+			default
+				- less = '<li><a href="/administrador/control_bitacora/page/'+(pp-1)+'">&laquo</a></li>'
+		if pp < c
+			- more = '<li><a href="/administrador/control_bitacora/page/'+(pp+1)+'">&raquo</a></li>'
+		else if pp >=c
+			- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+		| !{less}
+		each n in p
+			if n <= c
+				if n == pp
+					li(class="active")
+						a(href="#") #{n}
+				else
+					li
+						a(href="/administrador/control_bitacora/page/#{n}") #{n}
+			else if n > c
+				li(class="disabled")
+					a(href="#") #{n}
+		| !{more}
+
+	nav
+		ul(class="pagination")
+			if num_pages != 0
+				+pager(num_pages,position,paint)
+	div(class="modal fade" id="modalbinnacle" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Nombre del requisito para bitacóra
+				div(class="modal-body")
+					div(id="messagebinnacle")
+					form(class="form-horizontal" id="form_addbinnacle")
+						div(class="form-group")
+							label(for="Name" class="control-label col-xs-5") Requisito
+							div(class="col-xs-5")
+								input(id="Name_r" name="Name_r" type="text" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="btn-addbinnacle" onclick="binnacle_add();" class="btn btn-primary") Agregar
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="modalbinnacleupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Nombre del requisito para bitacóra
+				div(class="modal-body")
+					div(id="messageupdate")
+					form(class="form-horizontal" id="form_updatebinnacle")
+						div(class="form-group")
+							label(for="Name_rupdate" class="control-label col-xs-5") Requisito
+							div(class="col-xs-5")
+								input(id="Name_rupdate" name="Name_rupdate" type="text" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="btn-updatebinnacle" class="btn btn-primary") Actualizar
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

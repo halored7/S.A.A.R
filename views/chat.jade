@@ -1,0 +1,32 @@
+script(src="http://localhost:8000/public/js/chat.js")
+link(href="http://localhost:8000/public/css/chat.css" rel="stylesheet")
+div(class="popup-box chat-popup" id="qnimate")
+	div(class="popup-head")
+		div(class="popup-head-left pull-left")
+			
+		div(class="popup-head-right pull-right")
+			div(class="btn-group")
+				button(class="chat-header-button" data-toggle="dropdown" type="button" aria-expanded="false")
+					i(class="glyphicon glyphicon-cog") 
+				ul(role="menu" class="dropdown-menu pull-right")
+					li
+						a(href="#") Media
+					li
+						a(href="#") Block
+					li
+						a(href="#") Clear chat
+					li
+						a(href="#") Email
+			button(data-widget="remove" id="removeClass" class="chat-header-button pull-right" type="button")
+				span(class="icon-cross") 
+	div(class="popup-messages")
+		div(class="direct-chat-messages")
+			div(class="chat-box-single-line")
+				abbr(class="timestamp") ...
+			div(id="areaMessage")
+				
+	div(class="popup-messages-footer")
+		textarea(id="status_message" placeholder="escribe un mensage" rows="10" cols="40" name="message")
+		div(class="btn-footer")
+			button(class="bg_none pull-right" alt="Enviar" onclick="sendMessage();")
+				i(class="icon-compass")

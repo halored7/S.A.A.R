@@ -1,0 +1,80 @@
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+	body
+		if information == null
+			p spot no encontrado
+		else
+			div(class="container")
+				div(class="page-header")
+					h1(align="center")
+						p S.A.A.R
+					br
+					h2(align="center")
+						p Sistema de automatización de actividades de radiodifusoras
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3 Cartuchos
+					div(class="panel-body")
+						ul(class="list-group")
+							for c in data
+								li(class="list-group-item")= c.number_day+" | "+c.type_c+"_"+c.name_c+"_"+c.validity+" | "+c.serie
+
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3 Informe de Spot
+					div(class="panel-body")
+						-var mes=new Array();
+						-mes[0]="Enero";
+						-mes[1]="Febrero";
+						-mes[2]="Marzo";
+						-mes[3]="Abril";
+						-mes[4]="Mayo";
+						-mes[5]="Junio";
+						-mes[6]="Julio";
+						-mes[7]="Agosto";
+						-mes[8]="Semptimbre";
+						-mes[9]="Octubre";
+						-mes[10]="Noviembre";
+						-mes[11]="Diciembre";
+						- date = new Date(information.date_start+" 00:00");
+						h3(style="color:#F44336") 
+							p Inicia: #{date.getDate()+" de "+mes[date.getMonth()]+" de "+date.getFullYear()}
+						h3
+							p(align="center") Tipo de Spot: #{information.type}
+						if information.priority == 1
+							-priority = "Normal"
+						else
+							-priority = "Urgente"
+						h3
+							p(align="center") Prioridad: #{priority}
+						h3
+							p(align="center") Duración: #{information.duration}
+						if recorded == null
+							-announcer = "Cualquiera disponible";
+						else
+							-announcer = recorded.name_employe
+						h3
+							p(align="center") Locutor: #{announcer}
+						h3
+							p(align="center") Fondo(musica): #{information.type_music}
+				- num = 1
+				for i in data
+					div(class="panel panel-primary")
+						div(class="panel-heading")
+							p idea #{num}
+						div(class="panel-body")
+							p=i.idea
+						div(class="panel-footer")
+							p numero de palabras: 
+					-num++
+				div(class="panel panel-default")
+					div(class="panel-heading")
+						h3 Notas para productor
+					div(class="panel-body")
+						p= information.note

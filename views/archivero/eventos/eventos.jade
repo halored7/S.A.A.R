@@ -1,0 +1,151 @@
+if type !=null
+	- var typeu
+	case type
+		when 1
+			-typeu = "administrador"
+		when 2
+			-typeu = "ventas"
+		when 3
+			-typeu = "productor"
+		when 4
+			-typeu = "locutor"
+mixin pager(c,pp,p)
+	-var less
+	-var more
+	case pp
+		when 1
+			- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+		default
+			- less = '<li><a href="/#{typeu}/archivero/eventos?page='+(pp-1)+'">&laquo</a></li>'
+	if pp < c
+		- more = '<li><a href="/#{typeu}/archivero/eventos?page='+(pp+1)+'">&raquo</a></li>'
+	else if pp >=c
+		- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+	| !{less}
+	each n in p
+		if n <= c
+			if n == pp
+				li(class="active")
+					a(href="#") #{n}
+			else
+				li
+					a(href="/#{typeu}/archivero/eventos?page=#{n}") #{n}
+		else if n > c
+			li(class="disabled")
+				a(href="#") #{n}
+	| !{more}
+mixin show_events(events)
+	for event in events
+		tr
+			td= event.name_event
+			td= event.contact+" "+event.phone_contact
+			td= event.name_employe
+			td= event.date_create
+			td
+				a(href="#" data-toggle="modal" data-target="#Event" onclick="informationEvent('#{event.id_event}');")
+					span(class="icon-profile") Ver información
+			td
+				a(href="#" onclick="downLoadEvent('#{event.id_event}');")
+					span(class="") Descargar informe
+div(class="container-fluid")
+	div(class="row")
+		ul(class="nav nav-tabs")
+			li
+				a(href="#" data-toggle="modal" data-target="#searchEvent")
+					span(class="icon-search") &nbsp; Buscar informe
+div(class="container-fluid")
+	div(class="table-responsive")
+		table(class="table table-hover")
+			tr
+				th Nombre del evento
+				th Información del solicitante
+				th Responsable
+				th Fecha de creación
+				th Acciones
+			if events != null
+				+show_events(events)
+			else
+				h2
+					p no hay datos que mostrar
+if message != null
+	h3
+		p Ocurrio un problema #{message}
+nav
+	ul(class="pagination")
+		if num_pages != 0
+			+pager(num_pages,position,paint)
+div(class="modal fade bd-example-modal-lg" id="Event" tabindex="-1" role="dialog" aria-hidden="true")
+	div(class="modal-dialog modal-lg" role="document")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Cerrar
+				h2(class="modal-title") Informe de evento
+			div(class="modal-body")
+				div(class="panel panel-default")
+					div(class="panel-heading") Información de contacto del evento
+					div(class="panel-body")
+						form(class="form-horizontal" id="form_contact")
+							div(class="form-group")
+								label(for="name" class="control-label col-xs-5") Creador(ventas):
+								div(class="col-xs-5")
+									input(id="name" name="name" type="text" class="form-control")
+							div(class="form-group")
+								label(for="name_event" class="control-label col-xs-5") Nombre del evento:
+								div(class="col-xs-5")
+									input(id="name_event" name="name_event" type="text" class="form-control")
+							div(class="form-group")
+								label(for="orderedby" class="control-label col-xs-5") Ordenado por:
+								div(class="col-xs-5")
+									input(id="orderedby" name="orderedby" type="text" class="form-control")
+							div(class="form-group")
+								label(for="contact" class="control-label col-xs-5") Contactar con:
+								div(class="col-xs-5")
+									input(id="contact" name="contact" type="text" class="form-control")
+							div(class="form-group")
+								label(for="phone" class="control-label col-xs-5") Telefonó:
+								div(class="col-xs-5")
+									input(id="phone" name="phone" type="text" class="form-control")
+							div(class="form-group")
+								label(for="address" class="control-label col-xs-5") Dirección:
+								div(class="col-xs-5")
+									input(id="address" name="address" type="text" class="form-control")
+							div(class="form-group")
+								label(for="palce" class="control-label col-xs-5") Lugar de instalación:
+								div(class="col-xs-5")
+									input(id="palce" name="palce" type="text" class="form-control")
+				div(class="panel panel-default")
+					div(class="panel-heading") Fechas reservadas del evento
+					div(class="panel-body")
+						form(class="form-horizontal" id="formDate")
+				div(class="panel panel-default")
+					div(class="panel-heading") Información anexada
+					div(class="panel-body")
+						form(class="form-horizontal" id="data")
+							div(class="form-group")
+								label(for="support" class="control-label col-xs-5") Material de apoyo:
+								div(class="col-xs-5")
+									textarea(id="support" name="support" class="form-control")
+							div(class="form-group")
+								label(for="commercial" class="control-label col-xs-5") Comerciales:
+								div(class="col-xs-5")
+									input(id="commercial" name="commercial" type="checkbox" class="form-control" data-off-text="NO" data-on-text="SI")
+							div(class="form-group")
+								label(for="form" class="control-label col-xs-5") Desde:
+								div(class="col-xs-5")
+									input(id="form" name="form" type="checkbox" class="form-control" data-off-text="En vivo" data-on-text="En cabina")
+							div(class="form-group")
+								label(for="observations" class="control-label col-xs-5") Observaciónes:
+								div(class="col-xs-5")
+									textarea(id="observations" name="observations" class="form-control")
+				div(class="panel panel-default")
+					div(class="panel-heading") Recursos
+					div(class="panel-body")
+						form(class="form-horizontal" id="resource")
+				div(class="panel panel-default")
+					div(class="panel-heading") Locutores
+					div(class="panel-body")
+						form(class="form-horizontal" id="announcers")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar

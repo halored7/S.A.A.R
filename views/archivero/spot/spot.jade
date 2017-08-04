@@ -1,0 +1,130 @@
+if type
+	-var employe
+	case type
+		when 1
+			-employe = "administrador"
+		when 2
+			-employe = "ventas"
+		when 3
+			-employe = "productor"
+		when 4
+			-employe = "locutor"
+mixin pager(c,pp,p)
+	-var less
+	-var more
+	case pp
+		when 1
+			- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+		default
+			- less = '<li><a href="/#{employe}/archivero/Spot?page='+(pp-1)+'">&laquo</a></li>'
+	if pp < c
+		- more = '<li><a href="/#{employe}/archivero/Spot?page='+(pp+1)+'">&raquo</a></li>'
+	else if pp >=c
+		- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+	| !{less}
+	each n in p
+		if n <= c
+			if n == pp
+				li(class="active")
+					a(href="#") #{n}
+			else
+				li
+					a(href="/#{employe}/archivero/Spot?page=#{n}") #{n}
+		else if n > c
+			li(class="disabled")
+				a(href="#") #{n}
+	| !{more}
+mixin spot(spots)
+	-var num = 1
+	for spot in spots
+		-var status
+		if spot.received_date == null && spot.finished == 0
+			-status = "Sin procesar" 
+		else if spot.received_date != null && spot.finished == 0
+			-status = "Procesando"
+		else if spot.finished == 1
+			-status = "Terminado"
+		tr
+			td= num
+			td= spot.name_employe
+			td= spot.serie
+			td= spot.sent_date+" "+spot.sent_time
+			if spot.received_date != null
+				td= spot.received_date+" "+spot.received_time
+			else
+				td
+			td= status
+			td
+				a(href="#" data-toggle="modal" data-target="#modelspot" onclick="informationSpot('#{spot.id_spot}');")
+					span(class="icon-file-text") Ver información
+			td
+				a(href="#" onclick="downLoadSpot('#{spot.id_spot}')")
+					span(class="icon-file-pdf") Descargar informe
+		- num++
+div(class="container-fluid")
+	div(class="row")
+		ul(class="nav nav-tabs")
+			li
+				a(href="#" data-toggle="modal" data-target="#spotdata")
+					span(class="icon-search") &nbsp; Buscar Spot
+div(class="table-responsive")
+		table(class="table table-hover")
+			tr
+				th No.
+				th Creador(ventas)
+				th Cartucho(s)
+				th Enviado
+				th Recibido
+				th Estado
+			if spots != null
+				+spot(spots)
+			else
+				p no hay datos para mostrar
+nav
+	ul(class="pagination")
+		if num_pages != 0
+			+pager(num_pages,position,paint)
+div(class="modal fade" id="modelspot" tabindex="-1" role="dialog" aria-hidden="true")
+	div(class="modal-dialog")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Cerrar
+				h2(class="modal-title") Información de Spot
+			div(class="modal-body")
+				form(class="form-horizontal" id="form_spot_information")
+					div(class="form-group")
+						label(for="datestart" class="control-label col-xs-5") Fecha de inició:
+						div(class="col-xs-5")
+							input(id="datestart" name="datestart" type="date" class="form-control")
+					div(class="form-group")
+						label(for="type" class="control-label col-xs-5") Tipo:
+						div(class="col-xs-5")
+							select(name="type" id="type" class="form-control")
+								option(value="Spot") Spot
+								option(value="Perifoneo") Perifoneo
+								option(value="Spot prueba") Spot prueba
+								option(value="texto leido") texto leido
+					div(class="form-group")
+						label(for="priority" class="control-label col-xs-5") Prioridad:
+						div(class="col-xs-5")
+							input(id="priority" name="priority" type="text" class="form-control")
+					div(class="form-group")
+						label(for="duration" class="control-label col-xs-5") Duración:
+						div(class="col-xs-5")
+							input(id="duration" name="duration" type="text" class="form-control")
+					div(class="form-group")
+						label(for="announcer" class="control-label col-xs-5") locutor:
+						div(class="col-xs-5")
+							input(id="announcer" name="announcer" type="text" class="form-control")
+					div(class="form-group")
+						label(for="music" class="control-label col-xs-5") Musica:
+						div(class="col-xs-5")
+							input(id="music" name="music" type="text" class="form-control")
+					div(class="form-group")
+						div(class="col-xs-10")
+							textarea(id="note" name="note" class="form-control" placeholder="")
+					div(id="spotData")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

@@ -1,0 +1,248 @@
+extends ../layout.jade
+block contenido
+	mixin pager(c,pp,p)
+		-var less
+		-var more
+		case pp
+			when 1
+				- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+			default
+				- less = '<li><a href="/ventas/control_spot/?page='+(pp-1)+'">&laquo</a></li>'
+		if pp < c
+			- more = '<li><a href="/ventas/control_spot/?page='+(pp+1)+'">&raquo</a></li>'
+		else if pp >=c
+			- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+		| !{less}
+		each n in p
+			if n <= c
+				if n == pp
+					li(class="active")
+						a(href="#") #{n}
+				else
+					li
+						a(href="/ventas/control_spot/?page=#{n}") #{n}
+			else if n > c
+				li(class="disabled")
+					a(href="#") #{n}
+		| !{more}
+	mixin spot(spots)
+		-var mes=new Array();
+			-mes[0]="Enero";
+			-mes[1]="Febrero";
+			-mes[2]="Marzo";
+			-mes[3]="Abril";
+			-mes[4]="Mayo";
+			-mes[5]="Junio";
+			-mes[6]="Julio";
+			-mes[7]="Agosto";
+			-mes[8]="Semptimbre";
+			-mes[9]="Octubre";
+			-mes[10]="Noviembre";
+			-mes[11]="Diciembre";
+		for spot in spots
+			-var sendDate = new Date(spot.sent_date+" "+spot.sent_time);
+			-var status
+			if spot.received_date == null && spot.finished == 0
+				-status = "Sin procesar" 
+			else if spot.received_date != null && spot.finished == 0
+				-status = "Procesando"
+			else if spot.finished == 1
+				-status = "Terminado"
+			tr
+				td= spot.name_employe
+				td= spot.serie
+				td= sendDate.getDate()+" "+mes[sendDate.getMonth()]+" "+sendDate.getFullYear()+" "+sendDate.getHours()+":"+sendDate.getMinutes()
+				if spot.received_date != null
+					td= spot.received_date+" "+spot.received_time
+				else
+					td
+				td= status
+				td
+					a(href="#" data-toggle="modal" data-target="#spotinformationupdate" onclick="show_information('#{spot.id_spot}');")
+						span(class="icon-file-text") Ver/actualizar información
+				td
+					a(href="#" data-toggle="modal" data-target="#spotdataupdate" onclick="show_data('#{spot.id_spot}');")
+						span(class="icon-file-text") Ver/actualizar cartuchos
+				if spot.received_date == null && spot.finished == 0
+					td
+						a(href="#")
+							span(class="icon-bin2") Eliminar
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#spotdata")
+						span(class="icon-plus") &nbsp; Crear nuevo reporte Spot
+				li
+					a(href="/ventas/control_spot/")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+	div(class="table-responsive")
+			table(class="table table-hover")
+				tr
+					th Creador(ventas)
+					th Cartucho(s)
+					th Enviado
+					th Recibido
+					th Estado
+					th Acciones
+				if spots != null
+					+spot(spots)
+				else
+					p no hay datos para mostrar
+	nav
+		ul(class="pagination")
+			if num_pages != 0
+				+pager(num_pages,position,paint)
+	div(class="modal fade" id="spotdata" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de Spot(seleccion de cartruchos y asignacion de ideas)
+				div(class="modal-body")
+					div(id="message")
+					a(onclick="add_cartridge('#contenedor');" class="btn btn-info" href="#") Agregar mas versiones
+					form(class="form-horizontal" id="form_spot_data")
+						div(id="contenedor")
+							div(class="form-group")
+								label(for="cartridge" class="control-label col-xs-5") Seleccione cartucho:
+								div(class="col-xs-5")
+									select(name="cartridge[]" id="cartridge" class="form-control")
+										if cartridges != null
+											for cartridge in cartridges
+												option(value="#{cartridge.id_control}") #{cartridge.number_day} | #{cartridge.type_c}_#{cartridge.name_c}_#{cartridge.validity} | #{cartridge.serie}
+										else
+											option(value="") No hay cartuchos disponibles
+							div(class="form-group")
+								label(for="idea" class="control-label col-xs-5") Idea del Spot:
+								div(class="col-xs-5")
+									textarea(id="idea" name="idea[]" type="text" class="form-control")
+				div(class="modal-footer")
+					if cartridges != null
+						button(type="button" id="btn-spotdata" onclick="add_spot();" class="btn btn-primary") Siguiente
+					else
+						div(class="alert alert-danger alert-dismissible" role="alert") Advertencia: No existe ningun cartucho disponible en el sistema, control Spot esta desabilitado
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="spotinformation" tabindex="-1" role="dialog"  aria-hidden="true")
+		div(class="modal-dialog" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de Spot(asignación de información)
+				div(class="modal-body")
+					div(id="message")
+					
+					form(class="form-horizontal" id="form_spot_information")
+						div(class="form-group")
+							label(for="datestart" class="control-label col-xs-5") Fecha de inició:
+							div(class="col-xs-5")
+								input(id="datestart" name="datestart" type="date" class="form-control")
+						div(class="form-group")
+							label(for="type" class="control-label col-xs-5") Tipo:
+							div(class="col-xs-5")
+								select(name="type" id="type" class="form-control")
+									option(value="Spot") Spot
+									option(value="Perifoneo") Perifoneo
+									option(value="Spot prueba") Spot prueba
+									option(value="texto leido") texto leido
+						div(class="form-group")
+							label(for="priority" class="control-label col-xs-5") Prioridad:
+							div(class="col-xs-5")
+								select(name="priority" id="priority" class="form-control")
+									option(value="1") Normal
+									option(value="2") Urgente
+						div(class="form-group")
+							label(for="duration" class="control-label col-xs-5") Duración:
+							div(class="col-xs-5")
+								input(id="duration" name="duration" type="text" class="form-control")
+						div(class="form-group")
+							label(for="announcer" class="control-label col-xs-5") Seleccione locutor:
+							div(class="col-xs-5")
+								select(name="announcer" id="announcer" class="form-control")
+									option(value="1") Ninguno especificó
+									if announcers != null
+										for announcer in announcers
+											option(value="#{announcer.id_employe}") #{announcer.name_employe}
+						div(class="form-group")
+							label(for="music" class="control-label col-xs-5") Musica:
+							div(class="col-xs-5")
+								input(id="music" name="music" type="text" class="form-control")
+						div(class="form-group")
+							div(class="col-xs-10")
+								textarea(id="note" name="note" class="form-control" placeholder="Alguna nota para el productor")
+				div(class="modal-footer")
+					button(type="button" id="send_spot" class="btn btn-primary") Crear y enviar reporte de Spot
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="spotinformationupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de Spor(asignación de información)
+				div(class="modal-body")
+					div(id="message")
+					
+					form(class="form-horizontal" id="form_spot_information_update")
+						div(class="form-group")
+							label(for="datestartup" class="control-label col-xs-5") Fecha de inició:
+							div(class="col-xs-5")
+								input(id="datestartup" name="datestartup" type="date" class="form-control")
+						div(class="form-group")
+							label(for="typeup" class="control-label col-xs-5") Tipo:
+							div(class="col-xs-5")
+								select(name="typeup" id="typeup" class="form-control")
+									option(value="Spot") Spot
+									option(value="Perifoneo") Perifoneo
+									option(value="Spot prueba") Spot prueba
+									option(value="texto leido") texto leido
+						div(class="form-group")
+							label(for="priorityup" class="control-label col-xs-5") Prioridad:
+							div(class="col-xs-5")
+								select(name="priorityup" id="priorityup" class="form-control")
+									option(value="1") Normal
+									option(value="2") Urgente
+						div(class="form-group")
+							label(for="durationup" class="control-label col-xs-5") Duración:
+							div(class="col-xs-5")
+								input(id="durationup" name="durationup" type="text" class="form-control")
+						div(class="form-group")
+							label(for="announcerup" class="control-label col-xs-5") Seleccione locutor:
+							div(class="col-xs-5")
+								select(name="announcerup" id="announcerup" class="form-control")
+									option(value="1") Ninguno especificó
+									if announcers != null
+										for announcer in announcers
+											option(value="#{announcer.id_employe}") #{announcer.name_employe}
+						div(class="form-group")
+							label(for="musicup" class="control-label col-xs-5") Musica:
+							div(class="col-xs-5")
+								input(id="musicup" name="musicup" type="text" class="form-control")
+						div(class="form-group")
+							div(class="col-xs-10")
+								textarea(id="noteup" name="noteup" class="form-control" placeholder="Alguna nota para el productor")
+				div(class="modal-footer")
+					button(type="button" id="updateInformation" class="btn btn-primary") Actualizar información
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="spotdataupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de Spot(seleccion de cartuchos y asignacion de ideas)
+				div(class="modal-body")
+					div(id="message2")
+					a(onclick="add_cartridge('#contenedor2');" class="btn btn-info" href="#") Agregar mas versiones
+					form(class="form-horizontal" id="form_spot_data_update")
+						div(id="contenedor2")
+							
+				div(class="modal-footer")
+					button(type="button" id="btnspotdata" class="btn btn-primary") actualizar
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

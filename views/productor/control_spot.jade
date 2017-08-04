@@ -1,0 +1,103 @@
+extends ./layout.jade
+block contenido
+	mixin spot(spots)
+		for spot in spots
+			tr
+				td= spot.name_employe
+				td= spot.serie
+				td= spot.sent_date+" "+spot.sent_time
+				td= spot.received_date+" "+spot.received_time
+				td
+					a(href="#" onclick="preview('#{spot.id_spot}');" data-toggle="modal" data-target="#spotdata")
+						span(class="icon-eye") Vista previa
+				td
+					a(href="#" onclick="downLoadSpot('#{spot.id_spot}');")
+						span(class="icon-file-pdf") Descargar pdf
+				if spot.finished == 0
+					td
+						a(href="#" onclick="check('#{spot.id_spot}','#{serie}');")
+							span(class="icon-checkmark2") Marcar como terminadó
+	mixin pager(c,pp,p)
+		-var less
+		-var more
+		case pp
+			when 1
+				- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+			default
+				- less = '<li><a href="/productor/control_spot/?page='+(pp-1)+'">&laquo</a></li>'
+		if pp < c
+			- more = '<li><a href="/productor/control_spot/?page='+(pp+1)+'">&raquo</a></li>'
+		else if pp >=c
+			- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+		| !{less}
+		each n in p
+			if n <= c
+				if n == pp
+					li(class="active")
+						a(href="#") #{n}
+				else
+					li
+						a(href="/productor/control_spot/?page=#{n}") #{n}
+			else if n > c
+				li(class="disabled")
+					a(href="#") #{n}
+		| !{more}
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="/productor/control_spot/")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+	div(class="container-fluid")
+		div(class="table-responsive")
+				table(class="table table-hover")
+					tr
+						th Creador(ventas)
+						th Cartucho(s)
+						th Enviado
+						th Recibido
+						th Acciones
+					if spots != null
+						+spot(spots)
+	nav
+		ul(class="pagination")
+			if num_pages != 0
+				+pager(num_pages,position,paint)
+	div(class="modal fade bd-example-modal-lg" id="spotdata" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog modal-lg" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de Spot
+				div(class="modal-body")
+					form(class="form-horizontal")
+						h2
+							p(id="date" style="color:#F44336") 
+						div(id="contenedorcartridge")
+
+						div(class="form-group")
+							label(for="type" class="control-label col-xs-5") Tipo de spot:
+							div(class="col-xs-5")
+								input(id="type" name="type" type="text" class="form-control")
+						div(class="form-group")
+							label(for="priority" class="control-label col-xs-5") Prioridad:
+							div(class="col-xs-5")
+								input(id="priority" name="priority" type="text" class="form-control")
+						div(class="form-group")
+							label(for="duration" class="control-label col-xs-5") Duración:
+							div(class="col-xs-5")
+								input(id="duration" name="duration" type="text" class="form-control")
+						div(class="form-group")
+							label(for="recorded" class="control-label col-xs-5") Graba:
+							div(class="col-xs-5")
+								input(id="recorded" name="recorded" type="text" class="form-control")
+						div(class="form-group")
+							label(for="music" class="control-label col-xs-5") Fondo(musica):
+							div(class="col-xs-5")
+								input(id="music" name="music" type="text" class="form-control")
+						div(id="containeridea")
+							
+				div(class="modal-footer")
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

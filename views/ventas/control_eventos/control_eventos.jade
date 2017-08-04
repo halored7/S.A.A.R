@@ -1,0 +1,374 @@
+extends ../layout.jade
+block contenido
+	mixin pager(c,pp,p)
+		-var less
+		-var more
+		case pp
+			when 1
+				- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+			default
+				- less = '<li><a href="/ventas/control_eventos/?page='+(pp-1)+'">&laquo</a></li>'
+		if pp < c
+			- more = '<li><a href="/ventas/control_eventos/?page='+(pp+1)+'">&raquo</a></li>'
+		else if pp >=c
+			- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+		| !{less}
+		each n in p
+			if n <= c
+				if n == pp
+					li(class="active")
+						a(href="#") #{n}
+				else
+					li
+						a(href="/ventas/control_eventos/?page=#{n}") #{n}
+			else if n > c
+				li(class="disabled")
+					a(href="#") #{n}
+		| !{more}
+	mixin show_events(events)
+		-var now = new Date();
+		-var month = []
+		- month[0] = "Enero"
+		- month[1] = "Febrero"
+		- month[2] = "Marzo"
+		- month[3] = "Abril"
+		- month[4] = "Mayo"
+		- month[5] = "Junio"
+		- month[6] = "Julio"
+		- month[7] = "Agosto"
+		- month[8] = "Septiembre"
+		- month[9] = "Octubre"
+		- month[10] = "Noviembre"
+		- month[11] = "Diciembre"
+		-var nowdate = now.getFullYear()+"-"+month[now.getMonth()]+"-"+now.getDate()
+		for event in events
+			tr
+				td= event.name_event
+				td= event.contact+" "+event.phone_contact
+				td= event.address_event
+				td= event.name_employe
+				td= event.date_create
+				td
+					a(href="#" data-toggle="modal" data-target="#eventContactupdate" onclick="getContact('#{event.id_event}');")
+						span(class="icon-profile") Ver/actualizar "Contacto"
+				td
+					a(href="#" data-toggle="modal" data-target="#eventDateupdate" onclick="getDate('#{event.id_event}')")
+						span(class="icon-calendar") Ver/actualizar "Fechas"
+				td
+					a(href="#" data-toggle="modal" data-target="#eventDataupdate" onclick="getData('#{event.id_event}')")
+						span(class="icon-file-text") Ver/actualizar "Datos"
+				td
+					a(href="#" data-toggle="modal" data-target="#eventResourceupdate" onclick="getResources('#{event.id_event}');")
+						span(class="icon-stack") Ver/actualizar "recursos"
+				td
+					a(href="#" data-toggle="modal" data-target="#eventAnnouncersupdate" onclick="getAnnouncers('#{event.id_event}');")
+						span(class="icon-users") Ver/actualizar "Locutores"
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#eventContact")
+						span(class="icon-plus") &nbsp; Agregar nuevo evento
+				li
+					a(href="/ventas/control_eventos/")
+						span(class="icon-spinner9") &nbsp; Actualizar contenido
+	div(class="container-fluid")
+		div(class="table-responsive")
+			table(class="table table-hover")
+				tr
+					th Nombre del evento
+					th Información del solicitante
+					th Dirección del evento
+					th Responsable
+					th Fecha de creación
+					th Acciones
+				if events != null
+					+show_events(events)
+				else
+					h2
+						p no hay datos que mostrar
+		if message != null
+			h3
+				p Ocurrio un problema #{message}
+		nav
+			ul(class="pagination")
+				if num_pages != 0
+					+pager(num_pages,position,paint)
+	div(class="modal fade" id="eventContactupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de contacto
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_update_contact")
+						div(class="form-group")
+							label(for="up_name_event" class="control-label col-xs-5") Nombre del evento:
+							div(class="col-xs-5")
+								input(id="up_name_event" name="up_name_event" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_orderedby" class="control-label col-xs-5") Ordenado por:
+							div(class="col-xs-5")
+								input(id="up_orderedby" name="up_orderedby" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_contact" class="control-label col-xs-5") Contactar con:
+							div(class="col-xs-5")
+								input(id="up_contact" name="up_contact" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_phone" class="control-label col-xs-5") Telefonó:
+							div(class="col-xs-5")
+								input(id="up_phone" name="up_phone" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_address" class="control-label col-xs-5") Dirección:
+							div(class="col-xs-5")
+								input(id="up_address" name="up_address" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_palce" class="control-label col-xs-5") Lugar de instalación:
+							div(class="col-xs-5")
+								input(id="up_palce" name="up_palce" type="text" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="update_contact" class="btn btn-primary") Actualizar contacto
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="eventDateupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog modal-lg" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Fechas reservadas
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="date_for_update();") Agregar mas fechas
+					form(class="form-horizontal" id="form_update_date")
+						div(id="containerdate")
+				div(class="modal-footer")
+					button(type="button" id="update_date" class="btn btn-primary") Actualizar Fechas
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="eventDataupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos para el locutor
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_update_data")
+						div(class="form-group")
+							label(for="up_support" class="control-label col-xs-5") Material de apoyo:
+							div(class="col-xs-5")
+								input(id="up_support" name="up_support" type="text" class="form-control")
+						div(class="form-group")
+							label(for="up_commercial" class="control-label col-xs-5") Comerciales:
+							div(class="col-xs-5")
+								input(id="up_commercial" name="up_commercial" type="checkbox" class="form-control" data-off-text="NO" data-on-text="SI")
+						div(class="form-group")
+							label(for="up_form" class="control-label col-xs-5") Desde:
+							div(class="col-xs-5")
+								input(id="up_form" name="up_form" type="checkbox" class="form-control" data-off-text="En vivo" data-on-text="En cabina")
+						div(class="form-group")
+							label(for="up_observations" class="control-label col-xs-5") Observaciónes:
+							div(class="col-xs-5")
+								textarea(id="up_observations" name="up_observations" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="update_data" class="btn btn-primary") Actualizar datos
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="eventResourceupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Recursos
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="resource_for_update();") Agregar mas recursos
+					form(class="form-horizontal" id="form_update_resource")
+						div(id="containerResource")
+				div(class="modal-footer")
+					button(type="button" id="update_resource" class="btn btn-primary") Actualizar Recursos
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+	div(class="modal fade" id="eventAnnouncersupdate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Locutor(s) asignado(s)
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="announcer_for_update();") Agregar mas Locutores
+					form(class="form-horizontal" id="form_update_announcers")
+						div(id="containerAnnouncers")
+				div(class="modal-footer")
+					button(type="button" id="update_announcers" class="btn btn-primary") Actualizar locutor
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+
+	//- add contact
+	div(class="modal fade" id="eventContact" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos de contacto
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_contact")
+						div(class="form-group")
+							label(for="name_event" class="control-label col-xs-5") Nombre del evento:
+							div(class="col-xs-5")
+								input(id="name_event" name="name_event" type="text" class="form-control")
+						div(class="form-group")
+							label(for="orderedby" class="control-label col-xs-5") Ordenado por:
+							div(class="col-xs-5")
+								input(id="orderedby" name="orderedby" type="text" class="form-control")
+						div(class="form-group")
+							label(for="contact" class="control-label col-xs-5") Contactar con:
+							div(class="col-xs-5")
+								input(id="contact" name="contact" type="text" class="form-control")
+						div(class="form-group")
+							label(for="phone" class="control-label col-xs-5") Telefonó:
+							div(class="col-xs-5")
+								input(id="phone" name="phone" type="text" class="form-control")
+						div(class="form-group")
+							label(for="address" class="control-label col-xs-5") Dirección:
+							div(class="col-xs-5")
+								input(id="address" name="address" type="text" class="form-control")
+						div(class="form-group")
+							label(for="palce" class="control-label col-xs-5") Lugar de instalación:
+							div(class="col-xs-5")
+								input(id="palce" name="palce" type="text" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="contact" onclick="add_event()" class="btn btn-primary") Siguiente
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
+	//- dates
+	div(class="modal fade bd-example-modal-lg" id="eventDate" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog modal-lg")
+			div(class="modal-content" role="document")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Reservar fechas
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="date_for_new();") Agregar mas fechas
+					form(class="form-horizontal" id="form_date")
+						div(class="form-group")
+							label(for="date" class="control-label col-xs-1") Dia
+							div(class="col-xs-3")
+								input(type="date" name="date[]" class="form-control")
+							label(for="time_s" class="control-label col-xs-1") de
+							div(class="col-xs-2")
+								input(type="time" name="time_s[]" class="form-control")
+							label(for="time_f" class="control-label col-xs-1") a
+							div(class="col-xs-2")
+								input(type="time" name="time_f[]" class="form-control")
+						div(id="containerdateadd")
+				div(class="modal-footer")
+					button(type="button" id="date" class="btn btn-primary") Siguiente
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
+	//- data
+	div(class="modal fade" id="eventData" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog" role="document")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Datos para el locutor
+				div(class="modal-body")
+					div(id="message")
+					form(class="form-horizontal" id="form_data")
+						div(class="form-group")
+							label(for="support" class="control-label col-xs-5") Material de apoyo:
+							div(class="col-xs-5")
+								input(id="support" name="support" type="text" class="form-control")
+						div(class="form-group")
+							label(for="commercial" class="control-label col-xs-5") Comerciales:
+							div(class="col-xs-5")
+								input(id="commercial" name="commercial" type="checkbox" class="form-control" data-off-text="NO" data-on-text="SI")
+						div(class="form-group")
+							label(for="form" class="control-label col-xs-5") Desde:
+							div(class="col-xs-5")
+								input(id="form" name="form" type="checkbox" class="form-control" data-off-text="En vivo" data-on-text="En cabina")
+						div(class="form-group")
+							label(for="observations" class="control-label col-xs-5") Observaciónes:
+							div(class="col-xs-5")
+								textarea(id="observations" name="observations" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="data" class="btn btn-primary") Siguiente
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
+	//-resource
+	div(class="modal fade bd-example-modal-lg" id="eventResource" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog modal-lg")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Recursos
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="resource_for_new();") Agregar mas recursos
+					form(class="form-horizontal" id="form_resource")
+							div(class="alert alert-default")
+								button(class="close" data-dismiss="alert")
+									span &times;
+								div(class="form-group")
+									label(for="titulo" class="control-label col-xs-5") Recurso :
+									div(class="col-xs-5")
+									input(type="text" name="resource[]" value="Wi-FI")
+							div(class="alert alert-default")
+								button(class="close" data-dismiss="alert")
+									span &times;
+								div(class="form-group")
+									label(for="titulo" class="control-label col-xs-5") Recurso :
+									div(class="col-xs-5")
+									input(type="text" name="resource[]" value="Telefonó")
+							div(class="alert alert-default")
+								button(class="close" data-dismiss="alert")
+									span &times;
+								div(class="form-group")
+									label(for="titulo" class="control-label col-xs-5") Recurso :
+									div(class="col-xs-5")
+									input(type="text" name="resource[]" value="Energia Electrica")
+							div(class="alert alert-default")
+								button(class="close" data-dismiss="alert")
+									span &times;
+								div(class="form-group")
+									label(for="titulo" class="control-label col-xs-5") Recurso :
+									div(class="col-xs-5")
+									input(type="text" name="resource[]" value="Señal Movil")
+						div(id="containerResourceadd")
+				div(class="modal-footer")
+					button(type="button" id="resource" class="btn btn-primary") Siguiente
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
+	//-announcer
+	div(class="modal fade" id="eventAnnouncers" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Asignar locutor(s)
+				div(class="modal-body")
+					button(type="button" class="btn btn-primary" onclick="announcer_for_update();") Agregar mas Locutores
+					form(class="form-horizontal" id="form_announcers")
+						div(class="form-group")
+							label(for="announcer" class="control-label col-xs-5") Locutor:
+							div(class="col-xs-5")
+								select(name="announcer[]" class="form-control")
+									if announcers != null
+										for announcer in announcers
+											option(value="#{announcer.id_employe}") #{announcer.name_employe}
+						div(id="containerAnnouncersadd")
+
+				div(class="modal-footer")
+					button(type="button" id="announcers" class="btn btn-primary") Generar reporte
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar

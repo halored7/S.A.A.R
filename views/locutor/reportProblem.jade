@@ -1,0 +1,89 @@
+extends layout.jade
+block contenido
+	mixin reportt(vreports)
+		-var mes=new Array();
+		-mes[0]="Enero";
+		-mes[1]="Febrero";
+		-mes[2]="Marzo";
+		-mes[3]="Abril";
+		-mes[4]="Mayo";
+		-mes[5]="Junio";
+		-mes[6]="Julio";
+		-mes[7]="Agosto";
+		-mes[8]="Semptimbre";
+		-mes[9]="Octubre";
+		-mes[10]="Noviembre";
+		-mes[11]="Diciembre";
+		for report in vreports
+			-var status
+			if report.solved == 1
+				-status = "Solucionado"
+			else
+				-status = "En curso"
+			- var date = new Date(report.date+" "+report.time);
+			tr
+				td=date.getDate()+" de "+mes[date.getMonth()]+" "+date.getFullYear()
+				td= report.description
+				td= status
+	mixin pager(c,pp,p)
+		-var less
+		-var more
+		case pp
+			when 1
+				- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+			default
+				- less = '<li><a href="/locutor/reportar_problema/?page='+(pp-1)+'">&laquo</a></li>'
+		if pp < c
+			- more = '<li><a href="/locutor/reportar_problema/?page='+(pp+1)+'">&raquo</a></li>'
+		else if pp >=c
+			- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+		| !{less}
+		each n in p
+			if n <= c
+				if n == pp
+					li(class="active")
+						a(href="#") #{n}
+				else
+					li
+						a(href="/locutor/reportar_problema/?page=#{n}") #{n}
+			else if n > c
+				li(class="disabled")
+					a(href="#") #{n}
+	div(class="container-fluid")
+		div(class="row")
+			ul(class="nav nav-tabs")
+				li
+					a(href="#" data-toggle="modal" data-target="#reports")
+						span(class="icon-plus") &nbsp; Crear nuevo reporte
+	div(class="container")
+		div(class="table-responsive")
+				table(class="table table-hover")
+					tr
+						th Fecha de reporte
+						th Descripción
+						th Estado
+					if reports != null
+						+reportt(reports)
+					else
+						p No hay datos para mostrar
+	nav
+		ul(class="pagination")
+			if num_pages != 0
+				+pager(num_pages,position,paint)
+	div(class="modal fade" id="reports" tabindex="-1" role="dialog" aria-hidden="true")
+		div(class="modal-dialog")
+			div(class="modal-content")
+				div(class="modal-header")
+					button(type="button" class="close" data-dismiss="modal")
+						span(aria-hidden="true") &times;
+						span(class="sr-only") Cerrar
+					h2(class="modal-title") Reporte de problema
+				div(class="modal-body")
+					form(class="form-horizontal" id="formReport")
+						div(class="form-group")
+							label(for="idea" class="control-label col-xs-5") Observación:
+							div(class="col-xs-5")
+								textarea(id="argument" name="argument" type="text" class="form-control")
+				div(class="modal-footer")
+					button(type="button" id="btnReport" onclick="emitProblem();" class="btn btn-primary") Emitir
+					button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

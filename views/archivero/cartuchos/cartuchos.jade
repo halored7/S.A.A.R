@@ -1,0 +1,150 @@
+if type !=null
+	- var typeu
+	case type
+		when 1
+			-typeu = "administrador"
+		when 2
+			-typeu = "ventas"
+		when 3
+			-typeu = "productor"
+		when 4
+			-typeu = "locutor"
+mixin tables_date(date,date_format,cartridges)
+		h1(align="center" style="color:#F44336")= date_format
+		div(class="table-responsive")
+			table(class="table table-hover" id="#{date}")
+				tr
+					th No.
+					th Concepto
+					th Cartucho
+					th Estado
+					th Responsable
+					th Productor
+					th Acciones
+				for cartridge in cartridges
+					-var status = "";
+					-var color = ""
+					if cartridge.in_use == 0
+						-color = "success"
+						-status = "Disponible"
+					else if cartridge.in_use == 1
+						-color = "danger"
+						-status = "En uso"
+					tr(class="#{color}")
+						td= cartridge.number_day
+						td= cartridge.type_c+"_"+cartridge.name_c+"_"+cartridge.validity
+						td= cartridge.serie
+						td= status
+						td= cartridge.creator
+						td= cartridge.producer
+						td
+							a(href="#" data-toggle="modal" data-target="#history" onclick="historial('#{cartridge.id_control}');")
+								span(class="icon-history") ver historial
+mixin avaliable_date(date)
+	- var years = date.year
+	- var months
+	case date.month
+		when 1
+			- months = "Enero"
+		when 2
+			- months = "Febrero"
+		when 3
+			- months = "Marzo"
+		when 4
+			- months = "Abril"
+		when 5
+			- months = "Mayo"
+		when 6
+			- months = "Junio"
+		when 7
+			- months = "Julio"
+		when 8
+			- months = "Agosto"
+		when 9
+			- months = "Septiembre"
+		when 10
+			- months = "Octubre"
+		when 11
+			- months = "Noviembre"
+		when 12
+			- months = "Diciembre"
+	li
+		a(href="/#{typeu}/archivero/cartuchos?año="+years+"&mes="+months) #{months} de #{years}
+div(class="container-fluid")
+	div(class="row")
+		ul(class="nav nav-tabs")
+			li
+				a(href="#" data-toggle="modal" data-target="#search")
+					span(class="icon-search") &nbsp; Buscar
+			li
+				a(href="/ventas/control_cartuchos/fecha")
+					span(class="icon-file-pdf") &nbsp; Generar reporte de este mes
+			li(role="presentation" class="dropdown")
+				a(class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false")
+					| Fechas
+					span(class="caret")
+				ul(class="dropdown-menu")
+					if dates != null
+						for date in dates
+							+avaliable_date(date)
+
+div(class="container-fluid")
+	if arrayCartridges != null
+		for table in arrayCartridges
+			+tables_date(table[0],table[1],table[2])
+	if message != null
+		h3
+			p Ocurrio un problema #{message}
+div(class="modal fade bd-example-modal-lg" id="search" tabindex="-1" role="dialog" aria-hidden="true")
+	div(class="modal-dialog modal-lg")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Cerrar
+				h2(class="modal-title") Busqueda de cartuchos
+			div(class="modal-body")
+				div(class="form-group") 
+				div(class="input-group")
+					div(class="input-group-addon")
+						span(class="icon-search")
+					input(type="text" class="form-control" placeholder="ingrese serie, ejemplo '1123E','3426R',etc " onkeyup="searchCartridgebyserie(this.value);")
+				div(class="table-responsive" id="resultSearch")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar
+div(class="modal fade bd-example-modal-lg" id="history" tabindex="-1" role="dialog" aria-hidden="true")
+	div(class="modal-dialog modal-lg")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Cerrar
+				h2(class="modal-title") Historial de modificaciones
+			div(class="modal-body")
+				div(id="messagenewv")
+				form(class="form-horizontal" id="form_cartridgenewv")
+					div(class="form-group")
+						label(for="num" class="control-label col-xs-5") Numero de dia:
+						div(class="col-xs-5")
+							input(id="num" name="num" type="text" class="form-control")
+					div(class="form-group")
+						label(for="dateCreate" class="control-label col-xs-5") Fecha de creación:
+						div(class="col-xs-5")
+							input(id="dateCreate" name="dateCreate" type="text" class="form-control")
+					div(class="form-group")
+						label(for="state" class="control-label col-xs-5") Estado:
+						div(class="col-xs-5")
+							input(id="state" name="state" type="text" class="form-control")
+					div(class="table-responsive")
+						table(class="table table-hover" id="historyCartridge")
+							tr
+								th Creado por(ventas)
+								th Para(productor)
+								th Tipo
+								th Nombre cartucho
+								th Fecha de validación
+								th Serie
+								th Fecha de actualización
+
+			div(class="modal-footer")
+				button(type="button" class="btn btn-danger" data-dismiss="modal") Cerrar

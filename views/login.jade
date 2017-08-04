@@ -1,0 +1,37 @@
+extends ./layout.jade
+block contenido
+	div(class="container")
+		h1(align="center") Accede a la aplicación
+	div(class="container")
+		br
+		br
+		if message != null
+			div(class="alert alert-danger" role="alert")
+				span(class="icon-warning" aria-hidden="true")
+				span(class="sr-only") Error:
+				case message
+					when "error_bd"
+						| Base de datos no disponible, intentelo de nuevo.
+						| si el problema persiste contacte con el administrador
+					when "error_user_not_found"
+						| No se encontro ningun usuario con esa combinación, intentelo de nuevo.
+						| si no se acuerda de contraseña contacte con el administrador
+					when "error_user_type"
+						| Error con el usuario, intentelo de nuevo.
+						| si el problema persiste contacte con el administrador
+					when "error_user_type"
+						| Error con el usuario, cuenta desabilitada
+						| contante con el administrador
+		div(class="col-xs-12 col-md-6 col-md-offset-3")
+			form(action="/session" method="POST" class="form-horizontal")
+				div(class="form-group") 
+					div(class="input-group")
+						div(class="input-group-addon")
+							span(class="icon-user")
+						input(type="text" class="form-control" placeholder="Nombre de usuario" name="user" id="user")
+				div(class="form-group")
+					div(class="input-group")
+						span(class="input-group-addon" id="sizing-addon2")
+							span(class="icon-key")
+						input(type="password" class="form-control" placeholder="Contraseña" name="password" id="password")
+				button(class="btn btn-primary") Iniciar

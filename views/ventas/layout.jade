@@ -1,0 +1,124 @@
+doctype html
+html
+	head
+		title #{title}
+		meta(charset="utf-8")
+		meta(name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0")
+		script(src="http://localhost:8000/public/js/jquery.js")
+		link(href="http://localhost:8000/public/css/bootstrap.min.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/style.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/button_load.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/load_circle.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/bootstrap-switch.css" rel="stylesheet")
+		link(href="http://localhost:8000/public/css/no_conflict.css" rel="stylesheet")
+		script(src="http://localhost:8000/public/js/bootstrap.min.js")
+		script(src="http://localhost:8000/public/js/bootstrap-notify.min.js")
+		script(src="http://localhost:8000/public/js/archivero.js")
+		script(src="http://localhost:8000/public/js/tools.js")
+		script(src="http://localhost:8000/socket.io/socket.io.js")
+		script(src="http://localhost:8000/public/js/star_socket.js")
+		script(src="http://localhost:8000/public/js/socketVentas.js")
+		script(src="http://localhost:8000/public/js/bootstrap-switch.js")
+		script(src="http://localhost:8000/public/js/notification.js")
+		script(src="http://localhost:8000/public/js/socketChat.js")
+		script(src="http://localhost:8000/public/js/change.js")
+		script(src="http://localhost:8000/public/js/ventas_controlspot.js")
+		script(src="http://localhost:8000/public/js/start_switch.js")
+		script(src="http://localhost:8000/public/js/ventas_controlcartuchos.js")
+		script(src="http://localhost:8000/public/js/ventas_controleventos.js")
+	body
+		div(class="container-fluid")
+			div(class="row")
+				div(class="col-md-12")
+					ul(class="nav nav-tabs nav-justified")
+						li(role="presentation")
+							a(href="#" data-toggle="modal" data-target="#viewModal" onclick="notificationEvent();")
+								span(class="icon-podcast") &nbsp;Eventos &nbsp;
+								span(id="event" class="badge") #{notification.event}
+						li(role="presentation")
+							a(href="/ventas/control_spot/")
+								span(class="icon-mic") &nbsp;Spot terminados&nbsp;
+								span(id="spot" class="badge") #{notification.spot}
+						li(role="presentation")
+							a(href="#" data-toggle="modal" data-target="#viewModal" onclick="notificationAlert();")
+								span(class="icon-warning") &nbsp;Alertas &nbsp;
+								span(id="alerta" class="badge") #{notification.report}
+						li(role="presentation")
+							a(href="#" id="openchat")
+								span(class="icon-bubbles2 ") &nbsp;Chat &nbsp;
+								span(id="chat" class="badge") 0
+		div(class="container-fluid")
+			header
+				nav(class="navbar navbar-inverse")
+					div(class="container-fluid")
+						div(class="navbar-header")
+							button(type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-1")
+								span(class="sr-only") Menu
+								span(class="icon-bar")
+								span(class="icon-bar")
+								span(class="icon-bar")
+						div(class="collapse navbar-collapse" id="navbar-1")
+							ul(class="nav navbar-nav")
+								li
+									a(href="/ventas/control_cartuchos/fecha")
+										span(class="icon-list-numbered") &nbsp; Control cartuchos
+								li
+									a(href="/ventas/control_spot/")
+										span(class="icon-mic") &nbsp; Control Spot
+								li
+									a(href="/ventas/control_eventos/")
+										span(class="icon-podcast") &nbsp; Control eventos
+								
+								li(class="dropdown")
+									a(href="#" class="dropdown-toggle" data-toggle="dropdown" role="button")
+										span(class="icon-drawer") &nbsp;Archivero
+										span(class="caret")
+									ul(class="dropdown-menu")
+										li
+											a(href="/ventas/archivero/cartuchos")
+												span(class="icon-list-numbered") &nbsp; Reportes de cartuchos
+										li(class="divider")
+										li
+											a(href="/ventas/archivero/Spot")
+												span(class="icon-mic") &nbsp; Reportes de Spot
+										li(class="divider")
+										li
+											a(href="/ventas/archivero/eventos")
+												span(class="icon-podcast") &nbsp; Reportes de control remoto
+										li(class="divider")
+										li
+											a(href="/ventas/archivero/bitacoras")
+												span(class="icon-profile") &nbsp; Reportes de bitácora
+							ul(class="nav navbar-nav navbar-right")
+								li(class="dropdown")
+									a(href="#" class="dropdown-toggle" data-toggle="dropdown" role="button")
+										span(class="icon-cog") &nbsp;Configuración
+										span(class="caret")
+									ul(class="dropdown-menu")
+										li
+											a(href="#")
+												span(class="icon-user") &nbsp; #{USER.Name}
+										li(class="divider")
+										li
+											a(href="#" data-toggle="modal" data-target="#modalChange")
+												span(class="icon-pencil2") &nbsp; Cambiar datos
+										li(class="divider")
+										li
+											a(href="/closeSession/user")
+												span(class="icon-exit") &nbsp; Salir
+		div(class="modal fade bd-example-modal-lg" id="viewModal" tabindex="-1" role="dialog" aria-hidden="true")
+			div(class="modal-dialog modal-lg" role="document")
+				div(class="modal-content")
+					div(class="modal-header")
+						button(type="button" class="close" data-dismiss="modal")
+							span(aria-hidden="true") &times;
+							span(class="sr-only") Cerrar
+						h2(class="modal-title" id="titleModal")
+					div(class="modal-body")
+						div(class="table-responsive" id="tables")
+						div(class="table-responsive" id="reportBinnacle")
+					div(class="modal-footer")
+						button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
+		block contenido
+		include ../chat
+		include ../change

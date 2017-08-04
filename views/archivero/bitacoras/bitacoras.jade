@@ -1,0 +1,113 @@
+if type !=null
+	- var typeu
+	case type
+		when 1
+			-typeu = "administrador"
+		when 2
+			-typeu = "ventas"
+		when 3
+			-typeu = "productor"
+		when 4
+			-typeu = "locutor"
+mixin binnacles(binnacles)
+	for binnacle in binnacles
+		tr
+			td=binnacle.name_employe
+			td=binnacle.date
+			td=binnacle.start_time
+			td=binnacle.final_time
+			td
+				a(href="#" data-toggle="modal" data-target="#Binnacle" onclick="informationBinnacle('#{binnacle.id_control}');")
+					span(class="icon-eye") Ver bitacora
+			td
+				a(href="#" onclick="downLoadBinnacle('#{binnacle.id_control}');")
+					span(class="icon-file-pdf") Descargar informe
+mixin pager(c,pp,p)
+	-var less
+	-var more
+	case pp
+		when 1
+			- less = '<li class="disabled"><a href="#">&laquo</a></li>'
+		default
+			- less = '<li><a href="/#{typeu}/archivero/bitacoras?page='+(pp-1)+'">&laquo</a></li>'
+	if pp < c
+		- more = '<li><a href="/#{typeu}/archivero/bitacoras?page='+(pp+1)+'">&raquo</a></li>'
+	else if pp >=c
+		- more = '<li class="disabled"><a href="#">&raquo</a></li>'
+	| !{less}
+	each n in p
+		if n <= c
+			if n == pp
+				li(class="active")
+					a(href="#") #{n}
+			else
+				li
+					a(href="/#{typeu}/archivero/bitacoras?page=#{n}") #{n}
+		else if n > c
+			li(class="disabled")
+				a(href="#") #{n}
+	| !{more}
+div(class="container-fluid")
+	div(class="table-responsive")
+		table(class="table table-hover")
+			tr
+				th Bitacora de 
+				th con fecha
+				th Hora de inició
+				th Hora de cierre
+			if reports != null
+				+binnacles(reports)
+if message != null
+		h3
+			p Ocurrio un problema #{message}
+nav
+	ul(class="pagination")
+		if num_pages != 0
+			+pager(num_pages,position,paint)
+div(class="modal fade bd-example-modal-lg" id="Binnacle" tabindex="-1" role="dialog" aria-hidden="true")
+	div(class="modal-dialog modal-lg" role="document")
+		div(class="modal-content")
+			div(class="modal-header")
+				button(type="button" class="close" data-dismiss="modal")
+					span(aria-hidden="true") &times;
+					span(class="sr-only") Cerrar
+				h2(class="modal-title") Informe de evento
+			div(class="modal-body")
+				div(class="panel panel-default")
+					div(class="panel-heading") Información de bitacora
+					div(class="panel-body")
+						form(class="form-horizontal" id="form_control")
+							div(class="form-group")
+								label(for="name" class="control-label col-xs-5") Reporte de :
+								div(class="col-xs-5")
+									input(id="name" name="name" type="text" class="form-control")
+							div(class="form-group")
+								label(for="date" class="control-label col-xs-5") fecha de reporte:
+								div(class="col-xs-5")
+									input(id="date" name="date" type="date" class="form-control")
+							div(class="form-group")
+								label(for="times" class="control-label col-xs-5") hora de registro:
+								div(class="col-xs-5")
+									input(id="times" name="times" type="time" class="form-control")
+							div(class="form-group")
+								label(for="timef" class="control-label col-xs-5") hora de salida:
+								div(class="col-xs-5")
+									input(id="timef" name="timef" type="time" class="form-control")
+				div(class="panel panel-default")
+					div(class="panel-heading") Materiales seleccionados
+					div(class="panel-body")
+						div(id="material")
+				div(class="panel panel-default")
+					div(class="panel-heading") Cartuchos caducados
+					div(class="panel-body")
+						div(id="lapsed")
+				div(class="panel panel-default")
+					div(class="panel-heading") Anotaciones
+					div(class="panel-body")
+						form(class="form-horizontal" id="resource")
+							div(class="form-group")
+								label(for="note" class="control-label col-xs-5") Observaciones:
+								div(class="col-xs-5")
+									textarea(id="note")
+			div(class="modal-footer")
+				button(type="button" class="btn btn-danger" data-dismiss="modal") Cancelar
