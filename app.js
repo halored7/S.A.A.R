@@ -24,7 +24,7 @@ var express = require('express'),
 	router_locutor = require('./routers/routers_locutor'),
 	method_overrider = require("method-override");
 // motor de vistas
-app.set("view engine","jade");
+app.set("view engine","pug");
 var msession = cookieSession({
 		name: "session",
 		keys: ["llave-1","llave-2"]
@@ -35,17 +35,23 @@ var msession = cookieSession({
 		saveUninitialized: false
 	})*/
 // use
+
 app.use('/public',express.static('public'));
 app.use(bodyparse.json());
 app.use(bodyparse.urlencoded({extended:true}));
 app.use(method_overrider("_method"));
 socket(server,msession);
 app.use(msession);
-app.use( (err, req, res, next) => {
-  res.status(500);
-  res.json({
-    "error": '${err}'
-  });
+app.use((req,res,next) => {
+	var logger = "";
+	if(!req.session.user_name){
+		logger += "Usuario IP: "+req.connection.remoteAddress+" ";
+	}else{
+		logger += "Usuario "+req.session.user_name+" ";
+	}
+	logger += "solicitud url: "+req.originalUrl;
+	console.log(logger);
+	next();
 });
 //use routers
 app.use("/administrador",session_admin);
@@ -56,10 +62,8 @@ app.use("/productor",session_producer);
 app.use("/productor",router_productor);
 app.use("/locutor",session_announcer);
 app.use("/locutor",router_locutor);
-
 // get
 app.get("/:message?",function(req,res){
-	console.log('User-Agent: ' + req.headers['user-agent']);
 	var message = null;
 	if(req.params.message) message = req.params.message;
 	res.render("login",{title:"S.A.A.R",message:message});
@@ -396,8 +400,6 @@ app.get("/closeSession/user",function(req,res){
 	res.redirect("/");
 });
 app.post("/session",function(req,res){
-	console.log("Usuario: "+req.body.user);
-	console.log("Password: "+req.body.password);
 	user.session(req.body.user,req.body.password,function(error,user){
 		if(error){
 			res.redirect("/error_bd");
