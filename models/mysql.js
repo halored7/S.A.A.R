@@ -1,52 +1,34 @@
-var mysql = require("mysql"),
-	con = {};
-
-con.get_connection = function(cb){
+const mysql = require("mysql2");
+con = {};
+con.executeQuery = function(stmt,values,cb){
 	connection = mysql.createConnection({
-			host     : '127.0.0.1',
-			user     : 'root',
-			password : '',
-			database : 'services',
-			multipleStatements: true,
-			dateStrings: true
+		host     : '127.0.0.1',
+		user     : 'root',
+		password : '',
+		database : 'services',
+		multipleStatements: true,
+		dateStrings: true
 	});
-	connection.connect(function(err){
-		if(err){
-			console.log(err.code);
-			cb(err.code);
-		}else{
-			cb(null);
-		}
-	});
-}
-con.simple_query = function(stmt,cb){
-	var prepare = connection.query(stmt,function(error,results,fields){
-		if(error){
-			results = null
-			console.log(error.code);
-			console.log(error.stack);
-			cb(error.code,null);
-			return;
-		}
-		console.log(results);
-		cb(null,results);
-	});
-	console.log(prepare.sql);
-}
-con.secure_query = function(stmt,values,cb){
-	var prepare = connection.query(stmt,values,function(error,results,fields){
-		if(error){
-			cb(error.code,null);
-			console.log(error.code);
-			console.log(error.stack);
-			return;
-		}
-		console.log(results);
-		cb(null,results);
-	});
-	console.log(prepare.sql);
-}
-con.close = function(){
-	connection.destroy();
+	if(values == null){
+		connection.query(stmt,function(err,results){
+			if(err){
+				console.log(err.stack);
+				console.log(err.code);
+				cb(err.code,null);
+				return;
+			}
+			cb(null,results);
+		});
+	}else{
+		connection.execute(stmt,values,function(err,results){
+			if(err){
+				console.log(err.stack);
+				console.log(err.code);
+				cb(err.code,null);
+				return;
+			}
+			cb(null,results);
+		});
+	}
 }
 module.exports = con;

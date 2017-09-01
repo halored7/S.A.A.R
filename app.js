@@ -1,7 +1,7 @@
 // Declaracion de variables
 var express = require('express'),
 	app = express(),
-	bodyparse=require("body-parser"),
+	bodyparse = require("body-parser"),
 	server = require('http').Server(app),
 	session = require('express-session'),
 	socket = require('./middlewares/socket'),
